@@ -18,7 +18,7 @@ val commitHash = kotlin.run {
 	output.trim()
 }
 
-val pluginComingVersion = "0.4.2"
+val pluginComingVersion = "0.5.0"
 val pluginVersion = if (isCI) "$pluginComingVersion-$commitHash" else pluginComingVersion
 val packageName = "org.ice1000.julia"
 
@@ -27,9 +27,9 @@ version = pluginVersion
 
 plugins {
 	java
-	id("org.jetbrains.intellij") version "0.7.2"
-	id("org.jetbrains.grammarkit") version "2020.3.2"
-	kotlin("jvm") version "1.3.60"
+	id("org.jetbrains.intellij") version "1.8.0"
+	id("org.jetbrains.grammarkit") version "2021.1.3"
+	kotlin("jvm") version "1.5.32"
 }
 
 fun fromToolbox(root: String, ide: String) = file(root)
@@ -56,14 +56,16 @@ allprojects {
 //}
 
 intellij {
-	updateSinceUntilBuild = false
-	instrumentCode = true
+	version.set("2020.3.4")
+	updateSinceUntilBuild.set(false)
+	instrumentCode.set(true)
 	if (!isCI) {
-		setPlugins("PsiViewer:203-SNAPSHOT", "java")
-		downloadSources = true
+		plugins.set(listOf("PsiViewer:203-SNAPSHOT", "java"))
+		type.set("IU")
+		downloadSources.set(true)
 	} else {
-		setPlugins("java")
-		version = "2020.3"
+		plugins.set(listOf("java"))
+		//version = "2020.3"
 	}
 	val user = System.getProperty("user.name")
 	val os = System.getProperty("os.name")
@@ -74,10 +76,10 @@ intellij {
 	}
 	val intellijPath = ["IDEA-C", "IDEA-U"]
 		.mapNotNull { fromToolbox(root, it) }.firstOrNull()
-	intellijPath?.absolutePath?.let { localPath = it }
+	intellijPath?.absolutePath?.let { localPath.set(it) }
 	val pycharmPath = ["PyCharm-C", "IDEA-C", "IDEA-U"]
 		.mapNotNull { fromToolbox(root, it) }.firstOrNull()
-	pycharmPath?.absolutePath?.let { alternativeIdePath = it }
+	//pycharmPath?.absolutePath?.let { alternativeIdePath = it }
 }
 
 java {
@@ -86,10 +88,10 @@ java {
 }
 
 tasks.withType<PatchPluginXmlTask>().configureEach {
-	changeNotes(file("docs/change-notes.html").readText())
-	pluginDescription(file("docs/description.html").readText())
-	version(pluginVersion)
-	pluginId(packageName)
+	//changeNotes(file("docs/change-notes.html").readText())
+	//pluginDescription(file("docs/description.html").readText())
+	//version(pluginVersion)
+	//pluginId(packageName)
 }
 
 sourceSets {
@@ -110,7 +112,7 @@ sourceSets {
 
 repositories {
 	mavenCentral()
-	maven("https://dl.bintray.com/jetbrains/markdown/")
+	//maven("https://dl.bintray.com/jetbrains/markdown/")
 }
 
 dependencies {
@@ -118,7 +120,7 @@ dependencies {
 	compile(group = "org.eclipse.mylyn.github", name = "org.eclipse.egit.github.core", version = "2.1.5") {
 		exclude(module = "gson")
 	}
-	compile("org.jetbrains", "markdown", "0.2.0")
+	compile("org.jetbrains", "markdown", "0.3.1")
 	testCompile(kotlin(module = "test-junit"))
 	testCompile(group = "junit", name = "junit", version = "4.12")
 }
@@ -210,9 +212,9 @@ tasks.withType<KotlinCompile>().configureEach {
 		sortSpelling
 	)
 	kotlinOptions {
-		jvmTarget = "1.8"
-		languageVersion = "1.3"
-		apiVersion = "1.3"
+		jvmTarget = "11"
+		languageVersion = "1.5"
+		apiVersion = "1.5"
 		freeCompilerArgs = listOf("-Xjvm-default=enable")
 	}
 }
